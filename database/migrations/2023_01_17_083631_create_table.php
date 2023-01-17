@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('table', function (Blueprint $table) {
             $table->bigIncrements('table_id');
             $table->string('table_number', 100);
+            $table->enum('is_available',['true','false'])->default('true');
             $table->timestamps();
         });
     }

@@ -13,5 +13,6 @@ class Table extends Model
 
     protected $fillable = [
         'table_number',
+        'is_available',
     ];
 }
