@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,3 +38,8 @@ Route::get('table/available', [TableController::class, 'showAvailable']);
 Route::post('table', [TableController::class, 'store']);
 Route::put('table/{id}', [TableController::class, 'update']);
 Route::delete('table/{id}', [TableController::class, 'delete']);
+
+Route::get('order', [OrderController::class, 'show']);
+Route::post('order', [OrderController::class, 'store']);
+Route::put('order/{id}', [OrderController::class, 'update']);
+Route::delete('order/{id}', [OrderController::class, 'delete']);
