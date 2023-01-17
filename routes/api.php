@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MenuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +24,9 @@ Route::get('user', [UserController::class, 'show']);
 Route::post('user', [UserController::class, 'store']);
 Route::put('user/{id}', [UserController::class, 'update']);
 Route::delete('user/{id}', [UserController::class, 'delete']);
+
+Route::get('menu', [MenuController::class, 'show']);
+Route::get('menu/{id}', [MenuController::class, 'detail']);
+Route::post('menu', [MenuController::class, 'store']);
+Route::put('menu/{id}', [MenuController::class, 'update']);
+Route::delete('menu/{id}', [MenuController::class, 'delete']);
