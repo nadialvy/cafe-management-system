@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user', function (Blueprint $table) {
-            $table->bigIncrements('user_id');
-            $table->string('user_name', 100);
-            $table->enum('role', ['admin','cashier', 'manager']);
-            $table->string('password', 100);
+        Schema::create('menu', function (Blueprint $table) {
+            $table->bigIncrements('menu_id');
+            $table->string('menu_name', 100);
+            $table->enum('type', ['food','drink']);
+            $table->char('menu_description', 255);
+            $table->char('image', 255);
+            $table->integer('price');
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user');
+        Schema::dropIfExists('menu');
     }
 };
