@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Table;
+use App\Models\Menu;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -17,18 +20,17 @@ class OrderController extends Controller
     //Create data
     public function store(Request $req){
         $validator = Validator::make($req->all(),[
-            'order_date' => 'required|date',
             'user_id' => 'required|integer',
             'table_id' => 'required|integer',
             'customer_name' => 'required|string|max:100',
-            'status' => 'required|in:paid,pending',
+            'detail' => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        //check if table is available
+        //check if table status is available
         $table = Table::where('table_id', $req->table_id)->first();
         if($table->is_available == 'false'){
             return response()->json([
@@ -37,20 +39,44 @@ class OrderController extends Controller
             ], 400);
         }
 
-        $store = Order::create([
-            'order_date' => $req->order_date,
-            'user_id' => $req->user_id,
-            'table_id' => $req->table_id,
-            'customer_name' => $req->customer_name,
-            'status' => $req->status,
+        // insert order
+        $order = new Order();
+        $order->order_date = Carbon::now();
+        $order->user_id = $req->user_id;
+        $order->table_id = $req->table_id;
+        $order->customer_name = $req->customer_name;
+        $order->status = 'pending';
+        $order->save();
+
+        // change table status
+        $table->table_id = Table::where('table_id', $order->table_id)->update([
+            'is_available' => 'false'
         ]);
 
-        $data = Order::where('order_date', $store->order_date)->first();
-        if($store && $table->is_available == true){
+        // insert detail
+        for($i = 0; $i < count($req->detail); $i++){
+            $detail = new OrderDetail();
+            $detail->order_id = $order->id;
+            $detail->menu_id = $req->detail[$i]['menu_id'];
+            $detail->quantity = $req->detail[$i]['quantity'];
+
+            // get price from menu
+            $price = Menu::where('menu_id', $req->detail[$i]['menu_id'])->first()->price;
+            $detail->price = $detail->quantity * $price ;
+            $detail->save();
+        }
+
+        $dataOrder = Order::where('order_id', $order->id)->first();
+        $dataDetail = OrderDetail::where('order_id', $order->id)->get();
+
+        if($order && $detail){
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been created',
-                'data' => $data
+                'data' => [
+                    'order' => $dataOrder,
+                    'detail' => $dataDetail
+                ]
             ], 200);
         }else{
             return response()->json([
@@ -58,6 +84,7 @@ class OrderController extends Controller
                 'message' => 'Data failed to create'
             ], 400);
         }
+
     }
 
     //Update data
