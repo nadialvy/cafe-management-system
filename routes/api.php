@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderDetailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,3 +45,4 @@ Route::post('order', [OrderController::class, 'store']);
 Route::put('order/{id}', [OrderController::class, 'update']);
 Route::delete('order/{id}', [OrderController::class, 'delete']);
 
+Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);
