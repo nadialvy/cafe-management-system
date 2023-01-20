@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Menu extends Model
+class MenuImage extends Model
 {
     use HasFactory;
-    protected $table = 'menu';
+    protected $table = 'menu_image';
     public $timestamps = true;
 
     protected $fillable = [
-        'menu_name',
-        'type',
-        'menu_description',
-        'price',
+        'menu_image_name',
     ];
 }

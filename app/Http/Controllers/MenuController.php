@@ -4,25 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
+use App\Models\MenuImage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class MenuController extends Controller
 {
     // Get all data
-    public function show(){
-        return Menu::all();
+    public function show()
+    {
+        $data = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->get();
+
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
     }
 
     // Get data by id
-    public function detail($id){
+    public function detail($id)
+    {
         $data = Menu::where('menu_id', $id)->first();
-        if($data){
+        if ($data) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been found',
                 'data' => $data
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data not found'
@@ -31,35 +52,44 @@ class MenuController extends Controller
     }
 
     // Insert data
-    public function store(Request $req){
+    public function store(Request $req)
+    {
         $validator = Validator::make($req->all(), [
             'menu_name' => 'required|string|max:100',
             'type' => 'required|in:food,drink',
             'menu_description' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'price' => 'required|integer',
+            'menu_image_name' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $store = Menu::create([
-            'menu_name' => $req->menu_name,
-            'type' => $req->type,
-            'menu_description' => $req->menu_description,
-            'image' => $req->image,
-            'price' => $req->price,
-        ]);
+        $data = $validator->valid();
 
-        $data = Menu::where('menu_name', $store->menu_name)->first();
-        if($store){
+        // insert to menu table
+        $menu = Menu::create($data);
+
+        // insert to menu_image table
+        $file = $req->file('menu_image_name');
+        $newName = time().'_'.$file->getClientOriginalName();
+        $file->move(public_path('images'), $newName);
+
+        $imageMenu = new MenuImage();
+        $imageMenu->menu_id = $menu->id;
+        $imageMenu->menu_image_name = $newName;
+        $imageMenu->save();
+
+        $data = Menu::where('menu_name', $menu->menu_name)->first();
+        $dataImg = MenuImage::where('menu_image_name', $imageMenu->menu_image_name)->first();
+        if ($data && $dataImg) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been created',
                 'data' => $data
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to create'
@@ -68,16 +98,16 @@ class MenuController extends Controller
     }
 
     // Update data
-    public function update($id, Request $req){
+    public function update($id, Request $req)
+    {
         $validator = Validator::make($req->all(), [
             'menu_name' => 'required|string|max:100',
             'type' => 'required|in:food,drink',
             'menu_description' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'price' => 'required|integer',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
@@ -85,18 +115,17 @@ class MenuController extends Controller
             'menu_name' => $req->menu_name,
             'type' => $req->type,
             'menu_description' => $req->menu_description,
-            'image' => $req->image,
             'price' => $req->price,
         ]);
 
         $data = Menu::where('menu_id', $id)->first();
-        if($update){
+        if ($update) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been updated',
                 'data' => $data
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to update'
@@ -105,14 +134,15 @@ class MenuController extends Controller
     }
 
     // Delete data
-    public function delete($id){
+    public function delete($id)
+    {
         $delete = Menu::where('menu_id', $id)->delete();
-        if($delete){
+        if ($delete) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been deleted'
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to delete'

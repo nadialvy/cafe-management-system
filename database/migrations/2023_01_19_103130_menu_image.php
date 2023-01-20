@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('menu', function (Blueprint $table) {
-            $table->bigIncrements('menu_id');
-            $table->string('menu_name', 100);
-            $table->enum('type', ['food','drink']);
-            $table->char('menu_description', 255);
-            $table->integer('price');
+        Schema::create('menu_image', function (Blueprint $table) {
+            $table->bigIncrements('menu_image_id');
+            $table->unsignedBigInteger('menu_id');
+            $table->String('menu_image_name');
             $table->timestamps();
+
+            $table->foreign('menu_id')->references('menu_id')->on('menu');
         });
     }
 
