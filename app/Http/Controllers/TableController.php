@@ -21,8 +21,7 @@ class TableController extends Controller
     //Create data
     public function store(Request $req){
         $validator = Validator::make($req->all(), [
-            'table_number' => 'required|integer',
-            'is_available' => 'required|in:true,false',
+            'table_number' => 'required|integer|unique:table',
         ]);
 
         if($validator->fails()){
@@ -31,7 +30,7 @@ class TableController extends Controller
 
         $store = Table::create([
             'table_number' => $req->table_number,
-            'is_available' => $req->is_available,
+            'is_available' => 'true',
         ]);
 
         $data = Table::where('table_number', $store->table_number)->first();

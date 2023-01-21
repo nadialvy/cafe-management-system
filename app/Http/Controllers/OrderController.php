@@ -9,12 +9,30 @@ use App\Models\Table;
 use App\Models\Menu;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     //Get all data
     public function show(){
-        return Order::all();
+        $data = DB::table('order as o')
+            ->select('o.*', 't.*', 'u.*')
+            ->join('table as t', 'o.table_id', '=', 't.table_id')
+            ->join('user as u', 'o.user_id', '=', 'u.user_id')
+            ->get();
+
+        if($data){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
     }
 
     //Create data
