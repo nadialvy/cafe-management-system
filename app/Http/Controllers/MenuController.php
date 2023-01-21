@@ -7,7 +7,7 @@ use App\Models\Menu;
 use App\Models\MenuImage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+// use Illuminate\Support\Facades\File;
 
 class MenuController extends Controller
 {
@@ -36,11 +36,16 @@ class MenuController extends Controller
     // Get data by id
     public function detail($id)
     {
-        $data = Menu::where('menu_id', $id)->first();
+        $data = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->where('m.menu_id', $id)
+            ->first();
+
         if ($data) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Data has been found',
+                'message' => 'Get data success',
                 'data' => $data
             ], 200);
         } else {
@@ -76,13 +81,13 @@ class MenuController extends Controller
         $newName = time().'_'.$file->getClientOriginalName();
         $file->move(public_path('images'), $newName);
 
-        $imageMenu = new MenuImage();
-        $imageMenu->menu_id = $menu->id;
-        $imageMenu->menu_image_name = $newName;
-        $imageMenu->save();
+        $menuImage = new MenuImage();
+        $menuImage->menu_id = $menu->id;
+        $menuImage->menu_image_name = $newName;
+        $menuImage->save();
 
         $data = Menu::where('menu_name', $menu->menu_name)->first();
-        $dataImg = MenuImage::where('menu_image_name', $imageMenu->menu_image_name)->first();
+        $dataImg = MenuImage::where('menu_image_name', $menuImage->menu_image_name)->first();
         if ($data && $dataImg) {
             return response()->json([
                 'status' => 'success',
@@ -115,7 +120,7 @@ class MenuController extends Controller
             'menu_name' => $req->menu_name,
             'type' => $req->type,
             'menu_description' => $req->menu_description,
-            'price' => $req->price,
+            'price' => $req->price
         ]);
 
         $data = Menu::where('menu_id', $id)->first();

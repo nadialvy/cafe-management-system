@@ -7,6 +7,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderDetailController;
+use App\Http\Controllers\MenuImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,3 +47,5 @@ Route::put('order/{id}', [OrderController::class, 'update']);
 Route::delete('order/{id}', [OrderController::class, 'delete']);
 
 Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);
+
+Route::put('menuimage/{id}', [MenuImageController::class, 'update']);
