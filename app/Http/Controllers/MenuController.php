@@ -141,6 +141,15 @@ class MenuController extends Controller
     // Delete data
     public function delete($id)
     {
+        // delete the image first
+        $data = MenuImage::where('menu_id', $id)->first();
+        $image_path = public_path('images/'.$data->menu_image_name);
+        if (file_exists($image_path
+        )) {
+            unlink($image_path);
+        }
+
+        // delete the data
         $delete = Menu::where('menu_id', $id)->delete();
         if ($delete) {
             return response()->json([

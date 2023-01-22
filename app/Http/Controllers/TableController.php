@@ -49,22 +49,20 @@ class TableController extends Controller
     }
 
     //Update data
-    public function update($id, Request $req){
+    public function update($tableNumber, Request $req){
         $validator = Validator::make($req->all(), [
             'table_number' => 'required|integer',
-            'is_available' => 'required|in:true,false',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
 
-        $update = Table::where('table_id', $id)->update([
+        $update = Table::where('table_number', $tableNumber)->update([
             'table_number' => $req->table_number,
-            'is_available' => $req->is_available,
         ]);
 
-        $data = Table::where('table_id', $id)->first();
+        $data = Table::where('table_number', $tableNumber)->first();
         if($update){
             return response()->json([
                 'status' => 'success',
@@ -80,8 +78,8 @@ class TableController extends Controller
     }
 
     //Delete data
-    public function delete($id){
-        $delete = Table::where('table_id', $id)->delete();
+    public function delete($table_number){
+        $delete = Table::where('table_number', $table_number)->delete();
 
         if($delete){
             return response()->json([

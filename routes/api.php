@@ -39,8 +39,8 @@ Route::delete('menu/{id}', [MenuController::class, 'delete']);
 Route::get('table', [TableController::class, 'show']);
 Route::get('table/available', [TableController::class, 'showAvailable']);
 Route::post('table', [TableController::class, 'store']);
-Route::put('table/{id}', [TableController::class, 'update']);
-Route::delete('table/{id}', [TableController::class, 'delete']);
+Route::put('table/{id}', [TableController::class, 'update']); //id = table_number
+Route::delete('table/{id}', [TableController::class, 'delete']); //id = table_number
 
 Route::get('order', [OrderController::class, 'show']);
 Route::post('order', [OrderController::class, 'store']);

@@ -191,7 +191,7 @@ class OrderController extends Controller
 
     //Delete data
     public function delete($id){
-        $delete = Order::where('id', $id)->delete();
+        $delete = Order::where('order_id', $id)->delete();
         if($delete){
             return response()->json([
                 'status' => 'success',
