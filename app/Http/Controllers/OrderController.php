@@ -19,6 +19,7 @@ class OrderController extends Controller
             ->select('o.*', 't.*', 'u.*')
             ->join('table as t', 'o.table_id', '=', 't.table_id')
             ->join('user as u', 'o.user_id', '=', 'u.user_id')
+            ->orderBy('o.order_id', 'asc')
             ->get();
 
         if($data){
@@ -66,11 +67,6 @@ class OrderController extends Controller
         $order->status = 'pending';
         $order->save();
 
-        // change table status
-        $table->table_id = Table::where('table_id', $order->table_id)->update([
-            'is_available' => 'false'
-        ]);
-
         // insert detail
         for($i = 0; $i < count($req->detail); $i++){
             $detail = new OrderDetail();
@@ -83,6 +79,11 @@ class OrderController extends Controller
             $detail->price = $detail->quantity * $price ;
             $detail->save();
         }
+
+        // change table status
+        $table->table_id = Table::where('table_id', $order->table_id)->update([
+            'is_available' => 'false'
+        ]);
 
         $dataOrder = Order::where('order_id', $order->id)->first();
         $dataDetail = OrderDetail::where('order_id', $order->id)->get();
@@ -103,6 +104,44 @@ class OrderController extends Controller
             ], 400);
         }
 
+    }
+
+    // update status only
+    public function updateStatus($id, Request $req){
+        $validator = Validator::make($req->all(),[
+            'status' => 'required|in:paid,pending',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
+        $update = Order::where('order_id', $id)->update([
+            'status' => $req->status,
+        ]);
+
+        // get data based on id in order to get table_id
+        $data = Order::where('order_id', $id)->first();
+
+        // if status is paid, change table status to available
+        if($req->status == 'paid'){
+            Table::where('table_id', $data->table_id)->update([
+                'is_available' => 'true'
+            ]);
+        }
+
+        if($update){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data has been updated',
+                'data' => $update
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data failed to update'
+            ], 400);
+        }
     }
 
     //Update data

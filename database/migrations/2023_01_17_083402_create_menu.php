@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigIncrements('menu_id');
             $table->string('menu_name', 100);
             $table->enum('type', ['food','drink']);
-            $table->char('menu_description', 255);
+            $table->string('menu_description', 1000);
             $table->integer('price');
             $table->timestamps();
         });

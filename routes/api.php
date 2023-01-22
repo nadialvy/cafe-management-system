@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('user', [UserController::class, 'show']);
+Route::get('user/cashier', [UserController::class, 'showCashier']);
 Route::post('user', [UserController::class, 'store']);
 Route::put('user/{id}', [UserController::class, 'update']);
 Route::delete('user/{id}', [UserController::class, 'delete']);
@@ -44,6 +45,7 @@ Route::delete('table/{id}', [TableController::class, 'delete']);
 Route::get('order', [OrderController::class, 'show']);
 Route::post('order', [OrderController::class, 'store']);
 Route::put('order/{id}', [OrderController::class, 'update']);
+Route::put('order/{id}/status', [OrderController::class, 'updateStatus']);
 Route::delete('order/{id}', [OrderController::class, 'delete']);
 
 Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);

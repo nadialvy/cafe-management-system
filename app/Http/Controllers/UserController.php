@@ -13,6 +13,23 @@ class UserController extends Controller
         return User::all();
     }
 
+    // get data cashier only
+    public function showCashier(){
+        $data = User::where('role', 'cashier')->get();
+        if($data){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
     public function store(Request $req){
         $validator = Validator::make($req->all(), [
             'user_name' => 'required|string|max:100',
