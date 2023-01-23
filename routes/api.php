@@ -32,9 +32,12 @@ Route::delete('user/{id}', [UserController::class, 'delete']);
 
 Route::get('menu', [MenuController::class, 'show']);
 Route::get('menu/{id}', [MenuController::class, 'detail']);
+Route::get('menu/show/food', [MenuController::class, 'showFood']);
+Route::get('menu/show/drink', [MenuController::class, 'showDrink']);
 Route::post('menu', [MenuController::class, 'store']);
 Route::put('menu/{id}', [MenuController::class, 'update']);
 Route::delete('menu/{id}', [MenuController::class, 'delete']);
+Route::get('menu/search/{searchKey}', [MenuController::class, 'search']);
 
 Route::get('table', [TableController::class, 'show']);
 Route::get('table/available', [TableController::class, 'showAvailable']);

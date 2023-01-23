@@ -56,6 +56,50 @@ class MenuController extends Controller
         }
     }
 
+    public function showFood()
+    {
+        $data = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->where('m.type', 'food')
+            ->get();
+
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
+    public function showDrink()
+    {
+        $data = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->where('m.type', 'drink')
+            ->get();
+
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
     // Insert data
     public function store(Request $req)
     {
@@ -78,7 +122,7 @@ class MenuController extends Controller
 
         // insert to menu_image table
         $file = $req->file('menu_image_name');
-        $newName = time().'_'.$file->getClientOriginalName();
+        $newName = time() . '_' . $file->getClientOriginalName();
         $file->move(public_path('images'), $newName);
 
         $menuImage = new MenuImage();
@@ -143,8 +187,9 @@ class MenuController extends Controller
     {
         // delete the image first
         $data = MenuImage::where('menu_id', $id)->first();
-        $image_path = public_path('images/'.$data->menu_image_name);
-        if (file_exists($image_path
+        $image_path = public_path('images/' . $data->menu_image_name);
+        if (file_exists(
+            $image_path
         )) {
             unlink($image_path);
         }
@@ -161,6 +206,31 @@ class MenuController extends Controller
                 'status' => 'failed',
                 'message' => 'Data failed to delete'
             ], 400);
+        }
+    }
+
+    // Search query
+    public function search($searchKey)
+    {
+        $data = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->where('m.menu_name', 'like', "%$searchKey%")
+            ->orWhere('m.type', 'like', "%$searchKey%")
+            ->orWhere('m.price', 'like', "%$searchKey%")
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->get();
+
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
         }
     }
 }
