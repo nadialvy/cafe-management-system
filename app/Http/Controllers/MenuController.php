@@ -210,7 +210,7 @@ class MenuController extends Controller
     }
 
     // Search query
-    public function search($searchKey)
+    public function search($searchKey) //search all type
     {
         $data = DB::table('menu as m')
             ->select('m.*', 'mi.*')
@@ -219,12 +219,62 @@ class MenuController extends Controller
             ->orWhere('m.price', 'like', "%$searchKey%")
             ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
             ->get();
-
-        if ($data) {
-            return response()->json([
+            
+            if ($data) {
+                return response()->json([
                 'status' => 'success',
                 'message' => 'Get data success',
                 'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
+    public function searchFood($searchKey){
+        $allData = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->where('m.menu_name', 'like', "%$searchKey%")
+            ->orWhere('m.type', 'like', "%$searchKey%")
+            ->orWhere('m.price', 'like', "%$searchKey%")
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->get();
+
+        $food = $allData->where('type', 'food');
+
+        if ($food && $food->count() > 0) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $food
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
+    public function searchDrink($searchKey){
+        $allData = DB::table('menu as m')
+            ->select('m.*', 'mi.*')
+            ->where('m.menu_name', 'like', "%$searchKey%")
+            ->orWhere('m.type', 'like', "%$searchKey%")
+            ->orWhere('m.price', 'like', "%$searchKey%")
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->get();
+
+        $drink = $allData->where('type', 'drink');
+
+        if ($drink && $drink->count() > 0) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $drink
             ], 200);
         } else {
             return response()->json([

@@ -38,6 +38,8 @@ Route::post('menu', [MenuController::class, 'store']);
 Route::put('menu/{id}', [MenuController::class, 'update']);
 Route::delete('menu/{id}', [MenuController::class, 'delete']);
 Route::get('menu/search/{searchKey}', [MenuController::class, 'search']);
+Route::get('menu/searchfood/{searchKey}', [MenuController::class, 'searchFood']);
+Route::get('menu/searchdrink/{searchKey}', [MenuController::class, 'searchDrink']);
 
 Route::get('table', [TableController::class, 'show']);
 Route::get('table/available', [TableController::class, 'showAvailable']);
