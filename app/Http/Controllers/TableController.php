@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Table;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class TableController extends Controller
 {
@@ -91,6 +92,26 @@ class TableController extends Controller
                 'status' => 'failed',
                 'message' => 'Data failed to delete'
             ], 400);
+        }
+    }
+
+    // search data
+    public function search($searchKey){
+        $data = DB::table('table')
+            ->where('table_number', 'like', "%$searchKey%")
+            ->get();
+
+        if($data){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data has been found',
+                'data' => $data
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
         }
     }
 
