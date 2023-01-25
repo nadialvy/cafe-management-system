@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -110,6 +111,28 @@ class UserController extends Controller
                 'status' => 'failed',
                 'message' => 'Failed to delete data'
             ], 400);
+        }
+    }
+
+    public function search($searchKey){
+        $data = DB::table('user')
+            ->select('user.*')
+            ->where('user_name', 'like',  "%$searchKey%")
+            ->orWhere('username', 'like',  "%$searchKey%")
+            ->orWhere('role', 'like',  "%$searchKey%")
+            ->get();
+
+        if($data){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
         }
     }
 

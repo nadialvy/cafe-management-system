@@ -219,7 +219,7 @@ class MenuController extends Controller
             ->orWhere('m.price', 'like', "%$searchKey%")
             ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
             ->get();
-            
+
             if ($data) {
                 return response()->json([
                 'status' => 'success',
