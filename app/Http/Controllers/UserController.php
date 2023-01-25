@@ -35,7 +35,7 @@ class UserController extends Controller
             'user_name' => 'required|string|max:100',
             'role' => 'required|in:admin,cashier,manager',
             'username' => 'required|unique:user',
-            'password' => 'required|string|min:6',
+            // 'password' => 'required|string|min:6',
         ]);
 
         if($validator->fails()){
@@ -46,7 +46,7 @@ class UserController extends Controller
             'user_name' => $req->user_name,
             'role' => $req->role,
             'username' => $req->username,
-            'password' => Hash::make($req->password),
+            'password' => 123456, //set default password
         ]);
 
         $data = User::where('username', $store->username)->first();
@@ -68,8 +68,8 @@ class UserController extends Controller
         $validator = Validator::make($req->all(), [
             'user_name' => 'required|string|max:100',
             'role' => 'required|in:admin,cashier,manager',
-            'username' => 'required|unique:user',
-            'password' => 'required|string|min:6',
+            'username' => 'required|unique:user,username,'.$id.',user_id', //check unique username except id
+            // 'password' => 'required|string|min:6',
         ]);
 
         if($validator->fails()){
@@ -80,7 +80,7 @@ class UserController extends Controller
             'user_name' => $req->user_name,
             'role' => $req->role,
             'username' => $req->username,
-            'password' => Hash::make($req->password),
+            // 'password' => Hash::make($req->password),
         ]);
 
         $data = User::where('user_id', $id)->first();
