@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     //Get all data
-    public function show(){
+    public function show()
+    {
         $data = DB::table('order as o')
             ->select('o.*', 't.*', 'u.*')
             ->join('table as t', 'o.table_id', '=', 't.table_id')
@@ -22,13 +23,13 @@ class OrderController extends Controller
             ->orderBy('o.order_id', 'asc')
             ->get();
 
-        if($data){
+        if ($data) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Get data success',
                 'data' => $data
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data not found'
@@ -37,21 +38,22 @@ class OrderController extends Controller
     }
 
     //Create data
-    public function store(Request $req){
-        $validator = Validator::make($req->all(),[
+    public function store(Request $req)
+    {
+        $validator = Validator::make($req->all(), [
             'user_id' => 'required|integer',
             'table_id' => 'required|integer',
             'customer_name' => 'required|string|max:100',
             'detail' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
         //check if table status is available
         $table = Table::where('table_id', $req->table_id)->first();
-        if($table->is_available == 'false'){
+        if ($table->is_available == 'false') {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Table is not available, please select another table'
@@ -68,7 +70,7 @@ class OrderController extends Controller
         $order->save();
 
         // insert detail
-        for($i = 0; $i < count($req->detail); $i++){
+        for ($i = 0; $i < count($req->detail); $i++) {
             $detail = new OrderDetail();
             $detail->order_id = $order->id;
             $detail->menu_id = $req->detail[$i]['menu_id'];
@@ -76,7 +78,7 @@ class OrderController extends Controller
 
             // get price from menu
             $price = Menu::where('menu_id', $req->detail[$i]['menu_id'])->first()->price;
-            $detail->price = $detail->quantity * $price ;
+            $detail->price = $detail->quantity * $price;
             $detail->save();
         }
 
@@ -88,7 +90,7 @@ class OrderController extends Controller
         $dataOrder = Order::where('order_id', $order->id)->first();
         $dataDetail = OrderDetail::where('order_id', $order->id)->get();
 
-        if($order && $detail){
+        if ($order && $detail) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been created',
@@ -97,22 +99,22 @@ class OrderController extends Controller
                     'detail' => $dataDetail
                 ]
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to create'
             ], 400);
         }
-
     }
 
     // update status only
-    public function updateStatus($id, Request $req){
-        $validator = Validator::make($req->all(),[
+    public function updateStatus($id, Request $req)
+    {
+        $validator = Validator::make($req->all(), [
             'status' => 'required|in:paid,pending',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
@@ -124,19 +126,19 @@ class OrderController extends Controller
         $data = Order::where('order_id', $id)->first();
 
         // if status is paid, change table status to available
-        if($req->status == 'paid'){
+        if ($req->status == 'paid') {
             Table::where('table_id', $data->table_id)->update([
                 'is_available' => 'true'
             ]);
         }
 
-        if($update){
+        if ($update) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been updated',
                 'data' => $update
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to update'
@@ -145,64 +147,87 @@ class OrderController extends Controller
     }
 
     //Update data
-    public function update($id, Request $req){
-        $validator = Validator::make($req->all(),[
-            'order_date' => 'required|date',
+    public function update($id, Request $req)
+    {
+        $validator = Validator::make($req->all(), [
             'user_id' => 'required|integer',
             'table_id' => 'required|integer',
             'customer_name' => 'required|string|max:100',
-            'status' => 'required|in:paid,pending',
+            'detail' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $update = Order::where('order_id', $id)->update([
-            'order_date' => $req->order_date,
+        $updateOrder = Order::where('order_id', $id)->update([
+            'order_date' => Carbon::now(),
             'user_id' => $req->user_id,
             'table_id' => $req->table_id,
             'customer_name' => $req->customer_name,
-            'status' => $req->status,
+            'status' => 'pending',
         ]);
 
-        // if status is paid, change table status to available
-        if($req->status == 'paid'){
-            Table::where('table_id', $req->table_id)->update([
-                'is_available' => 'true'
-            ]);
+        // update detail order
+        for ($i = 0; $i < count($req->detail); $i++) {
+            if (isset($req->detail[$i]['order_detail_id'])) {
+                $detail = OrderDetail::where('order_detail_id', $req->detail[$i]['order_detail_id'])->first();
+            } else {
+                $detail = new OrderDetail();
+            }
+
+            $detail->order_id = $req->order_id;
+            $detail->menu_id = $req->detail[$i]['menu_id'];
+            $detail->quantity = $req->detail[$i]['quantity'];
+            $price = Menu::where('menu_id', $req->detail[$i]['menu_id'])->first()->price;
+            $detail->price = $detail->quantity * $price;
+            $detail->save();
+        }
+
+        // check if there is any menu that has been deleted
+        $dataDetail = OrderDetail::where('order_id', $id)->get();
+        foreach ($dataDetail as $data) {
+            $found = false;
+            foreach ($req->detail as $orderDetail) {
+                if ($data->menu_id == $orderDetail['menu_id']) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                OrderDetail::where('order_detail_id', $data->order_detail_id)->delete();
+            }
         }
 
         $data = Order::where('order_id', $id)->first();
-        if($update){
+        if ($updateOrder && $detail) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been updated',
                 'data' => $data
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to update'
             ], 400);
         }
-
     }
 
     //Delete data
-    public function delete($id){
+    public function delete($id)
+    {
         $delete = Order::where('order_id', $id)->delete();
-        if($delete){
+        if ($delete) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been deleted'
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Data failed to delete'
             ], 400);
         }
     }
-
 }

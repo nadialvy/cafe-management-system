@@ -33,11 +33,35 @@ class OrderDetailController extends Controller
                 'data' => $detail,
                 'total_price' => $total_price
             ], 200);
-        }else {
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Could not find the data',
-            ], 401);
+            ], 400);
+        }
+    }
+
+    // get detail menu only based on order id
+    public function detailMenu($id)
+    {
+        if (DB::table('order')->where('order_id', $id)->exists()) {
+            $detail = DB::table('order_detail')
+                ->select('menu.menu_name', 'menu.menu_id', 'menu.price', 'order_detail.order_detail_id', 'order_detail.order_id', 'order_detail.quantity', DB::raw('false as deleted'))
+                ->where('order.order_id', $id)
+                ->join('order', 'order.order_id', '=', 'order_detail.order_id')
+                ->join('menu', 'menu.menu_id', '=', 'order_detail.menu_id')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $detail,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Could not find the data',
+            ], 400);
         }
     }
 }

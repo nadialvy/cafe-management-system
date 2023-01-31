@@ -33,7 +33,6 @@ class MenuController extends Controller
         }
     }
 
-    // Get data by id
     public function detail($id)
     {
         $data = DB::table('menu as m')
@@ -220,8 +219,8 @@ class MenuController extends Controller
             ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
             ->get();
 
-            if ($data) {
-                return response()->json([
+        if ($data) {
+            return response()->json([
                 'status' => 'success',
                 'message' => 'Get data success',
                 'data' => $data
@@ -234,7 +233,8 @@ class MenuController extends Controller
         }
     }
 
-    public function searchFood($searchKey){
+    public function searchFood($searchKey)
+    {
         $allData = DB::table('menu as m')
             ->select('m.*', 'mi.*')
             ->where('m.menu_name', 'like', "%$searchKey%")
@@ -259,7 +259,8 @@ class MenuController extends Controller
         }
     }
 
-    public function searchDrink($searchKey){
+    public function searchDrink($searchKey)
+    {
         $allData = DB::table('menu as m')
             ->select('m.*', 'mi.*')
             ->where('m.menu_name', 'like', "%$searchKey%")
@@ -275,6 +276,31 @@ class MenuController extends Controller
                 'status' => 'success',
                 'message' => 'Get data success',
                 'data' => $drink
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
+    // count each menu and order it by most ordered
+    public function bestSeller()
+    {
+        $data = DB::table('menu as m')
+            ->select('m.menu_name', 'm.type', 'mi.menu_image_name', 'od.quantity')
+            ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
+            ->join('order_detail as od', 'm.menu_id', '=', 'od.menu_id')
+            ->groupBy('m.menu_id')
+            ->orderBy('quantity', 'desc')
+            ->get();
+
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
             ], 200);
         } else {
             return response()->json([

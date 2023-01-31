@@ -41,9 +41,11 @@ Route::delete('menu/{id}', [MenuController::class, 'delete']);
 Route::get('menu/search/{searchKey}', [MenuController::class, 'search']);
 Route::get('menu/searchfood/{searchKey}', [MenuController::class, 'searchFood']);
 Route::get('menu/searchdrink/{searchKey}', [MenuController::class, 'searchDrink']);
+Route::get('menu/show/bestseller', [MenuController::class, 'bestSeller']);
 
 Route::get('table', [TableController::class, 'show']);
 Route::get('table/available', [TableController::class, 'showAvailable']);
+Route::get('table/availableedit/{id}', [TableController::class, 'showAvailableForEdit']); //id = table_id
 Route::post('table', [TableController::class, 'store']);
 Route::put('table/{id}', [TableController::class, 'update']); //id = table_number
 Route::delete('table/{id}', [TableController::class, 'delete']); //id = table_number
@@ -56,5 +58,6 @@ Route::put('order/{id}/status', [OrderController::class, 'updateStatus']);
 Route::delete('order/{id}', [OrderController::class, 'delete']);
 
 Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);
+Route::get('detailmenu/{id}', [OrderDetailController::class, 'detailMenu']);
 
 Route::put('menuimage/{id}', [MenuImageController::class, 'update']);

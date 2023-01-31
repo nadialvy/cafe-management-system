@@ -19,6 +19,29 @@ class TableController extends Controller
         return Table::where('is_available', true)->get();
     }
 
+    // Get available data except that table id
+    public function showAvailableForEdit($table_id){
+        $selectedTable = Table::where('table_id', $table_id)->get();
+        $availableTable = Table::where('is_available', true)->get();
+
+        $collection = collect($selectedTable);
+        $merged = $collection->merge($availableTable);
+        $result = $merged->all();
+
+        if($result){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data has been displayed',
+                'data' => $result
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data failed to displayed'
+            ], 400);
+        }
+    }
+
     //Create data
     public function store(Request $req){
         $validator = Validator::make($req->all(), [
