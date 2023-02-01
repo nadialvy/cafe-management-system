@@ -56,6 +56,9 @@ Route::post('order', [OrderController::class, 'store']);
 Route::put('order/{id}', [OrderController::class, 'update']);
 Route::put('order/{id}/status', [OrderController::class, 'updateStatus']);
 Route::delete('order/{id}', [OrderController::class, 'delete']);
+Route::get('order/search/{searchKey}', [OrderController::class, 'search']);
+Route::get('order/searchbydate/{date}', [OrderController::class, 'searchByDate']);
+Route::get('order/searchbymonth/{date}', [OrderController::class, 'searchByMonth']);
 
 Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);
 Route::get('detailmenu/{id}', [OrderDetailController::class, 'detailMenu']);

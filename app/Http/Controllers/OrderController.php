@@ -10,6 +10,7 @@ use App\Models\Menu;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use DateTime;
 
 class OrderController extends Controller
 {
@@ -229,5 +230,64 @@ class OrderController extends Controller
                 'message' => 'Data failed to delete'
             ], 400);
         }
+    }
+
+    public function search($searchKey){
+        $data = DB::table('order')
+            ->select('order.*', 'user.*', 'table.*')
+            ->where('order.customer_name', 'like', "%$searchKey%")
+            ->orWhere('user.user_name', 'like', "%$searchKey%")
+            ->orWhere('table.table_number', 'like', "%$searchKey%")
+            ->orWhere('order.status', 'like', "%$searchKey%")
+            ->join('user', 'user.user_id', '=', 'order.user_id')
+            ->join('table', 'table.table_id', '=', 'order.table_id')
+            ->get();
+
+         if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Get data success',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found'
+            ], 404);
+        }
+    }
+
+    public function searchByDate($date){
+        $data = DB::table('order')
+        ->select('order.*', 'user.*', 'table.*')
+        ->where('order.order_date', 'like', "%$date%")
+        ->join('user', 'user.user_id', '=', 'order.user_id')
+        ->join('table', 'table.table_id', '=', 'order.table_id')
+        ->get();
+
+        if ($data) {
+           return response()->json([
+               'status' => 'success',
+               'message' => 'Get data success',
+               'data' => $data
+           ], 200);
+       } else {
+           return response()->json([
+               'status' => 'failed',
+               'message' => 'Data not found'
+           ], 404);
+       }
+    }
+
+    public function searchByMonth($date){
+        $date = new DateTime($date);
+        $month = $date->format('m');
+        $year = $date->format('Y');
+
+        $orders = Order::whereMonth('order_date', $month)
+                      ->whereYear('order_date', $year)
+                      ->get();
+
+        return response()->json(['data' => $orders]);
     }
 }
