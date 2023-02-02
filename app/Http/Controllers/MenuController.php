@@ -285,15 +285,16 @@ class MenuController extends Controller
         }
     }
 
-    // count each menu and order it by most ordered
     public function bestSeller()
     {
-        $data = DB::table('menu as m')
-            ->select('m.menu_name', 'm.type', 'mi.menu_image_name', 'od.quantity')
+        $data = DB::table('order_detail as od')
+            ->select('m.menu_name', 'mi.menu_image_name', 'm.price', 'm.menu_id', DB::raw('SUM(od.quantity) as quantity'))
+            ->join('menu as m', 'od.menu_id', '=', 'm.menu_id')
             ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
-            ->join('order_detail as od', 'm.menu_id', '=', 'od.menu_id')
+            ->join('order as o', 'od.order_id', '=', 'o.order_id')
+            ->where('o.status', 'paid')
             ->groupBy('m.menu_id')
-            ->orderBy('quantity', 'desc')
+            ->take(5)
             ->get();
 
         if ($data) {
