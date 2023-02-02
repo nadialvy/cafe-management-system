@@ -7,63 +7,39 @@ use App\Models\Menu;
 use App\Models\MenuImage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MenuImageController extends Controller
 {
-    public function update($menu_id, Request $req)
+    public function update($menu_id, Request $request)
     {
-        $validator = Validator::make($req->input(), [
-            'menu_image_name' => [
-                'required',
-                File::types(['jpeg', 'jpg', 'png', 'gif', 'svg'])
-                    ->max(1024 * 1024 * 5, '5MB')
-            ],
-        ]);
+        // delete old image
+        $menuImage = MenuImage::where('menu_id', $menu_id)->first();
+        $oldImagePath = $menuImage->menu_image_name;
+        Storage::delete($oldImagePath);
 
-        dd($req->menu_image_name === null);
+        $file = $request->file('menu_image');
+        $newName = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('images'), $newName);
 
-        if (!$req->hasFile('menu_image_name')) {
-            return response()->json(['error' => 'menu_image_name is required'], 400);
-        }
-
-        $validator = Validator::make($req->all(), [
-            'menu_image_name' => 'required|file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        $menu = Menu::where('menu_id', $menu_id)->first();
-        if ($menu) {
-            // delete old image
-            $menu_image = MenuImage::where('menu_id', $menu_id)->firstOrFail();
-            $image_path = public_path('images/' . $menu_image->menu_image_name);
-            if (file_exists($image_path)) {
-                unlink($image_path);
-            }
-
-            // update new image
-            $file = $req->file('menu_image_name');
-            $newName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('images'), $newName);
-
-            $menuImage = MenuImage::where('menu_id', $menu_id)->update([
+        $updated = DB::table('menu_image')
+            ->where('menu_id', $menu_id)
+            ->update([
                 'menu_image_name' => $newName
-            ]);
+        ]);
 
-            if ($menuImage) {
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Image has been updated',
-                    'data' => $menuImage
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => 'Image failed to update'
-                ], 400);
-            }
+        if($updated) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Update image success',
+                'data' => $menuImage
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Update image failed'
+            ], 404);
         }
     }
 }

@@ -63,4 +63,4 @@ Route::get('order/searchbymonth/{date}', [OrderController::class, 'searchByMonth
 Route::get('orderdetail/{id}', [OrderDetailController::class, 'detail']);
 Route::get('detailmenu/{id}', [OrderDetailController::class, 'detailMenu']);
 
-Route::put('menuimage/{id}', [MenuImageController::class, 'update']);
+Route::post('menuimage/{id}', [MenuImageController::class, 'update']);
