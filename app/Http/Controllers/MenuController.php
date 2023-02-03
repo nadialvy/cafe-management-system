@@ -288,13 +288,14 @@ class MenuController extends Controller
     public function bestSeller()
     {
         $data = DB::table('order_detail as od')
-            ->select('m.menu_name', 'mi.menu_image_name', 'm.price', 'm.menu_id', DB::raw('SUM(od.quantity) as quantity'))
+            ->select('m.menu_name', 'mi.menu_image_name', 'm.price', 'm.menu_description', 'm.menu_id', DB::raw('SUM(od.quantity) as quantity'))
             ->join('menu as m', 'od.menu_id', '=', 'm.menu_id')
             ->join('menu_image as mi', 'm.menu_id', '=', 'mi.menu_id')
             ->join('order as o', 'od.order_id', '=', 'o.order_id')
             ->where('o.status', 'paid')
             ->groupBy('m.menu_id')
-            ->take(5)
+            ->orderBy('quantity', 'desc')
+            ->take(6)
             ->get();
 
         if ($data) {

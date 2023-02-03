@@ -8,6 +8,7 @@ use App\Http\Controllers\TableController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\MenuImageController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('login', [AuthController::class, 'login']);
+
+Route::group(['middleware' => 'jwt.verify'], function(){
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('user-profile', [AuthController::class, 'userProfile']);
+    Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::get('menu', [MenuController::class, 'show']);
+});
+
 Route::get('user', [UserController::class, 'show']);
 Route::get('user/cashier', [UserController::class, 'showCashier']);
 Route::get('user/search/{searchKey}', [UserController::class, 'search']);
@@ -31,7 +42,6 @@ Route::post('user', [UserController::class, 'store']);
 Route::put('user/{id}', [UserController::class, 'update']);
 Route::delete('user/{id}', [UserController::class, 'delete']);
 
-Route::get('menu', [MenuController::class, 'show']);
 Route::get('menu/{id}', [MenuController::class, 'detail']);
 Route::get('menu/show/food', [MenuController::class, 'showFood']);
 Route::get('menu/show/drink', [MenuController::class, 'showDrink']);
