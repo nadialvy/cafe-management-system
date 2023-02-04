@@ -9,9 +9,9 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class JwtMiddleware extends BaseMiddleware
 {
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, ...$roles)
     {
-        // dd($request);
+        // dd($roles[0]==="cashier");
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (Exception $e) {
@@ -25,8 +25,19 @@ class JwtMiddleware extends BaseMiddleware
         }
 
         if ($user === null) {
-            return response()->json(['status' => 'User not found']);
+            return response()->json([
+                'status' => 'failed',
+                'message' => "User not found"
+            ], 400);
         }
-        return $next($request);
+
+        if($user && in_array($user->role, $roles)){
+            return $next($request);
+        }else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => "You don't have permission to access this resource"
+            ], 400);
+        }
     }
 }

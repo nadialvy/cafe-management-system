@@ -57,6 +57,7 @@ class AuthController extends Controller
     }
 
     protected function createNewToken($token){
+        // dd(auth()->user()->role);
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',

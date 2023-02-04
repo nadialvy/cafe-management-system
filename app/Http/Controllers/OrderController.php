@@ -137,7 +137,6 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data has been updated',
-                'data' => $update
             ], 200);
         } else {
             return response()->json([
