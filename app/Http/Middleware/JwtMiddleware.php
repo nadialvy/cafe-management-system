@@ -11,7 +11,6 @@ class JwtMiddleware extends BaseMiddleware
 {
     public function handle($request, Closure $next, ...$roles)
     {
-        // dd($roles[0]==="cashier");
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (Exception $e) {

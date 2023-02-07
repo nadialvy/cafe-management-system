@@ -47,7 +47,8 @@ class UserController extends Controller
             'user_name' => $req->user_name,
             'role' => $req->role,
             'username' => $req->username,
-            'password' => 123456, //set default password
+            // set default password and hash
+            'password' => Hash::make('123456'),
         ]);
 
         $data = User::where('username', $store->username)->first();
