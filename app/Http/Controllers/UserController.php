@@ -157,13 +157,13 @@ class UserController extends Controller
     if ($update) {
       return response()->json([
         'status' => 'success',
-        'message' => 'Data has been updated',
+        'message' => 'Success to reset password',
         'data' => $data,
       ], 200);
     } else {
       return response()->json([
         'status' => 'failed',
-        'message' => 'Data failed to update',
+        'message' => 'Failed to reset password',
       ], 400);
     }
   }
