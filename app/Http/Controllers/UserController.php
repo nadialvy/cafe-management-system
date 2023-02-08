@@ -168,6 +168,56 @@ class UserController extends Controller
     }
   }
 
+  public function updateUsername(Request $request, $id){
+    $update = User::where('user_id', $id)->update([
+      'username' => $request->username,
+    ]);
+
+    // check if username already exist but except id
+    $checkUsername = User::where('username', $request->username)->where('user_id', '!=', $id)->first();
+
+    if ($checkUsername) {
+      return response()->json([
+        'status' => 'failed',
+        'message' => 'Username already exist, please use another username'
+      ], 400);
+    }
+
+    $data = User::where('user_id', $id)->first();
+    if ($update) {
+      return response()->json([
+        'status' => 'success',
+        'message' => 'Username has been changed',
+        'data' => $data,
+      ], 200);
+    } else {
+      return response()->json([
+        'status' => 'failed',
+        'message' => 'Failed to change username',
+      ], 400);
+    }
+  }
+
+  public function updateName(Request $request, $id){
+    $update = User::where('user_id', $id)->update([
+      'user_name' => $request->user_name,
+    ]);
+
+    $data = User::where('user_id', $id)->first();
+    if ($update) {
+      return response()->json([
+        'status' => 'success',
+        'message' => 'Username has been changed',
+        'data' => $data,
+      ], 200);
+    } else {
+      return response()->json([
+        'status' => 'failed',
+        'message' => 'Failed to change username',
+      ], 400);
+    }
+  }
+
   public function delete($id)
   {
     $delete = User::where('user_id', $id)->delete();

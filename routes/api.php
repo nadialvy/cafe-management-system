@@ -33,7 +33,9 @@ Route::group(['middleware' => ['jwt.verify:cashier,manager,admin']],  function (
   Route::get('user-profile', [AuthController::class, 'userProfile']);
   Route::post('logout', [AuthController::class, 'logout']);
   Route::put('updatepass/{id}', [UserController::class, 'updatePassword']);
-  
+  Route::put('updatename/{id}', [UserController::class, 'updateName']);
+  Route::put('updateusername/{id}', [UserController::class, 'updateUsername']);
+
   Route::group(['middleware' => ['jwt.verify:cashier']], function () {
     Route::post('order', [OrderController::class, 'store']); // 2 dan 3. melakukan transaksi + menentukan no meja yang tersedia
     Route::get('order/{id}', [OrderController::class, 'showByUser']); // 4. melihat transaksi nya sendiri
