@@ -16,7 +16,6 @@ class User extends Authenticatable implements JWTSubject
     use HasFactory, Notifiable;
     protected $table = 'user';
     protected $primaryKey = 'user_id';
-    // public $timestamps = true;
 
     protected $fillable = [
         'user_name',

@@ -106,7 +106,7 @@ class MenuController extends Controller
             'menu_name' => 'required|string|max:100',
             'type' => 'required|in:food,drink',
             'menu_description' => 'required|string',
-            'price' => 'required|integer',
+            'price' => 'required|integer|min:0',
             'menu_image_name' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -152,7 +152,7 @@ class MenuController extends Controller
             'menu_name' => 'required|string|max:100',
             'type' => 'required|in:food,drink',
             'menu_description' => 'required|string',
-            'price' => 'required|integer',
+            'price' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
